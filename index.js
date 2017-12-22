@@ -21,6 +21,7 @@ module.exports = function(source) {
     delete hoganOpts.noShortcut;
     delete hoganOpts.clientSide;
     delete hoganOpts.tiny;
+    delete hoganOpts.injectWebpackDataIntoContextRoot;
     var render;
     if (query.render) {
         if (query.clientSide) {
@@ -52,6 +53,12 @@ module.exports = function(source) {
         suffix = 'return T; }();';
     } else if (query.render) {
         suffix = 'return T.render(' + JSON.stringify(render) + ');};';
+    } else if (query.injectWebpackDataIntoContextRoot) {
+        suffix = 'var args = arguments[0]; ' +
+            'if(args && args.htmlWebpackPlugin && args.htmlWebpackPlugin.options.data){' +
+            'Object.keys(args.htmlWebpackPlugin.options.data).forEach(function(p){args[p] = args.htmlWebpackPlugin.options.data[p];});' +
+            '}' +
+            'return T.render.call(T, args); };';
     } else {
         suffix = 'return T.render.apply(T, arguments); };';
     }
